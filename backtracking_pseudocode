@@ -1,0 +1,133 @@
+Pseudocode:
+FUNCTION solve_sudoku(board, size, box_rows, box_cols):
+
+    CREATE sets for tracking used numbers in each row, col, and sub-box
+
+    CREATE empty list for empty_cells
+
+
+    // Step 1: Initialize tracking sets and identify empty cells
+
+    FOR each row r from 0 to size - 1:
+
+        FOR each column c from 0 to size - 1:
+
+            val = board[r][c]
+
+            IF val != 0 THEN:
+
+                ADD val to row[r], col[c], and corresponding box
+
+            ELSE:
+
+                ADD (r, c) to empty_cells
+
+            END IF
+
+        END FOR
+
+    END FOR
+
+
+    // Step 2: Backtracking helper function with MRV
+
+    FUNCTION backtrack():
+
+        IF empty_cells is empty THEN:
+
+            RETURN True  // Board is solved
+
+        END IF
+
+
+        // Apply Minimum Remaining Values (MRV) heuristic
+
+        find empty cell in empty_cells with the FEWEST valid candidate numbers
+
+
+        IF least candidate count == 0 THEN:
+
+            RETURN False  // Dead end, trigger backtracking
+
+        END IF
+
+
+        REMOVE selected cell (r, c) from empty_cells
+
+
+        // Try placing each valid candidate number
+
+        FOR each valid number in candidate_list:
+
+            PLACE number in board[r][c]
+
+            REGISTER number in row[r], col[c], and box tracking sets
+
+
+            IF backtrack() is True THEN:
+
+                RETURN True
+
+            END IF
+
+
+            // Undo choice if it didn't lead to a solution
+
+            UNPLACE number from board[r][c]
+
+            REMOVE number from row[r], col[c], and box tracking sets
+
+        END FOR
+
+
+        RESTORE selected cell (r, c) back into empty_cells
+
+        RETURN False  // No candidate worked
+
+    END FUNCTION
+
+
+    RETURN backtrack()
+
+END FUNCTION
+
+
+
+// MAIN EXECUTION LOOP
+
+LOAD dataset from "data_set.json"
+
+
+FOR each item in dataset:
+
+    COPY puzzle grid to avoid modifying original data
+
+    START timer
+
+
+    solved_status = solve_sudoku(grid_copy, size, box_rows, box_cols)
+
+
+    STOP timer
+
+    CALCULATE execution_time
+
+
+    IF solved_status is True AND grid_copy matches expected_solution THEN:
+
+        status = "Passed"
+
+    ELSE IF solved_status is True THEN:
+
+        status = "Wrong Solution"
+
+    ELSE:
+
+        status = "Failed"
+
+    END IF
+
+
+    PRINT puzzle details, execution_time, and status
+
+END FOR
